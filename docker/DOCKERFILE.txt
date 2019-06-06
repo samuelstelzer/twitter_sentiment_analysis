@@ -1,0 +1,24 @@
+# Base image https://hub.docker.com/u/rocker/
+FROM rocker/r-base:latest
+
+# create directories
+RUN mkdir -p /R
+RUN mkdir -p /data
+RUN mkdir -p /models
+
+# copy files
+## copy scripts
+COPY install_packages.R install_packages.R
+COPY predict_tweet.R predict_tweet.R
+## copy models
+COPY /models/model.rds /models/model.rds
+COPY /models/scaler.rds /models/scaler.rds
+## copy data
+COPY /data/negative_words.rds /data/negative_words.rds 
+COPY /data/neutral_words.rds /data/neutral_words.rds 
+COPY /offense_type_words.rds /offense_type_words.rds
+COPY /data/positive_words.rds /data/positive_words.rds
+COPY /data/sentiment_words.rds /data/sentiment_words.rds 
+
+# install R-packages
+RUN Rscript install_packages.R
