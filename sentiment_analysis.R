@@ -1,9 +1,10 @@
+#!/usr/bin/ Rscript
 # I. load libraries and source functions
-
-library(dplyr)
-library(tidytext)
-library(data.table)
-library(stringr)
+library('caret')
+library('dplyr')
+library('tidytext')
+library('data.table')
+library('stringr')
 
 source("./R/feature_creation.R")
 
@@ -50,9 +51,9 @@ total_df <- total_df[!(is.na(total_df$sentiment) & is.na(total_df$offense_type))
 print(nrow(total_df))
 
 # 6. split into training and test data
-train_index = createDataPartition(total_df$sentiment, p=0.8, list=FALSE)
-train_df = total_df[train_index,]
-test_df = total_df[-train_index,]
+train_index <- createDataPartition(total_df$sentiment, p=0.8, list=FALSE)
+train_df <- total_df[train_index,]
+test_df <- total_df[-train_index,]
 
 # IV. create sentiment tfidf dictionaries
 sentiment_words <- train_df %>%

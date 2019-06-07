@@ -1,27 +1,8 @@
-offense_type_path <-ifelse(Sys.info()[['sysname']]=="Windows",
-                           "./data/offense_type_words.rds",
-                           "\\\\data\\offense_type_words.rds")
-offense_type_words <- readRDS(offense_type_path)
-
-sentiment_words_path <- ifelse(Sys.info()[['sysname']]=="Windows",
-                               "./data/sentiment_words.rds",
-                               "\\\\data\\sentiment_words.rds")
+offense_type_words <- readRDS("./data/offense_type_words.rds")
 sentiment_words <- readRDS("./data/sentiment_words.rds")
-
-negative_words_path <- ifelse(Sys.info()[['sysname']]=="Windows",
-                              "./data/negative_words.rds",
-                              "\\\\data\\negative_words.rds")
-negative_words <- readRDS(negative_words_path)
-
-positive_words_path <- ifelse(Sys.info()[['sysname']]=="Windows",
-                              "./data/positive_words.rds",
-                              "\\\\data\\positive_words.rds")
-positive_words <- readRDS(positive_words_path)
-
-neutral_words_path <- ifelse(Sys.info()[['sysname']]=="Windows",
-                              "./data/neutral_words.rds",
-                              "\\\\data\\neutral_words.rds")
-neutral_words <- readRDS(neutral_words_path)
+negative_words <- readRDS("./data/negative_words.rds")
+positive_words <- readRDS("./data/positive_words.rds")
+neutral_words <- readRDS("./data/neutral_words.rds")
 
 create_tf_idf_df <- function(df) {
   tf_idf_df <-
