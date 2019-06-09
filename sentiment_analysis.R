@@ -51,6 +51,7 @@ total_df <- total_df[!(is.na(total_df$sentiment) & is.na(total_df$offense_type))
 print(nrow(total_df))
 
 # 6. split into training and test data
+set.seed(42)
 train_index <- createDataPartition(total_df$sentiment, p=0.8, list=FALSE)
 train_df <- total_df[train_index,] %>% as.data.table()
 test_df <- total_df[-train_index,] %>% as.data.table()
@@ -95,26 +96,19 @@ train_control <- trainControl(method = "cv",
                               classProbs = TRUE,
                               verboseIter = TRUE)
 
-tune_grid <- expand.grid(nrounds = c(20, 30, 50),
-                         max_depth = c(3, 4, 6),
-                         eta = c(0.05, 0.08, 0.1),
-                         gamma = c(0.01, 0.05),
-                         colsample_bytree = c(0.7, 0.75, 0.8),
-                         min_child_weight = c(0.5, 1, 1.5),
-                         subsample = c(0.7, 0.8, 0.9))
-
-tune_grid <- expand.grid(nrounds = c(25, 30, 35),
-                         max_depth = c(2, 3),
-                         eta = c(0.09, 0.1, 0.11),
-                         gamma = c(0.04, 0.05, 0.06),
-                         colsample_bytree = c(0.7, 0.75, 0.8),
-                         min_child_weight = c(0.5, 1, 1.5),
+tune_grid <- expand.grid(nrounds = c(40, 45, 50),
+                         max_depth = c(3, 4),
+                         eta = c(0.08, 0.09, 1.0),
+                         gamma = c(0.03, 0.05, 0.08),
+                         colsample_bytree = c(0.5, 0.65, 0.8),
+                         min_child_weight = c(0.5, 0.8, 1.0),
                          subsample = c(0.7, 0.8, 0.9))
 
 # 4. fit model
 fit <- train(sentiment ~ .,
              data = train,
              method = "xgbTree",
+             metric="ROC",
              trControl = train_control,
              tuneGrid = tune_grid,
              tuneLength = 10)
