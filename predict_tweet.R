@@ -7,11 +7,10 @@ suppressMessages(library('data.table'))
 suppressMessages(library('stringr'))
 source("./R/feature_creation.R")
 
-args <- commandArgs(trailingOnly=TRUE)
+text <- commandArgs(trailingOnly=TRUE)
 model <- readRDS("./models/model.rds")
 scaler <- readRDS("./models/scaler.rds")
-text <- args
-df <- data.frame(text, stringsAsFactors = FALSE)
+df <- data.table(text, stringsAsFactors = FALSE)
 df <- create_features(df)
 df <- predict(scaler, df)
 df <- df[,2:ncol(df)]

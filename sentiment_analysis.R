@@ -24,7 +24,7 @@ neutral_dictionary <- read.table("./data/GermanPolarityClues-Neutral-21042012.ts
                                   quote = NULL, stringsAsFactors = FALSE, na.strings = "", encoding = "UTF-8")
 
 negative_words <- tolower(negative_dictionary$V1)
-positive_words <- tolower(negative_dictionary$V1)
+positive_words <- tolower(positive_dictionary$V1)
 neutral_words <- tolower(neutral_dictionary$V1)
 
 saveRDS(negative_words, "./data/negative_words.rds")
@@ -52,8 +52,8 @@ print(nrow(total_df))
 
 # 6. split into training and test data
 train_index <- createDataPartition(total_df$sentiment, p=0.8, list=FALSE)
-train_df <- total_df[train_index,]
-test_df <- total_df[-train_index,]
+train_df <- total_df[train_index,] %>% as.data.table()
+test_df <- total_df[-train_index,] %>% as.data.table()
 
 # IV. create sentiment tfidf dictionaries
 sentiment_words <- train_df %>%
@@ -79,8 +79,8 @@ test_df <- create_features(df = test_df)
 
 # VI. model training
 # 1. remove text and offense_type
-train <- train_df[,!(colnames(train_df) %in% c("text", "offense_type"))]
-test <- test_df[,!(colnames(test_df) %in% c("text", "offense_type"))]
+train <- train_df[,!(colnames(train_df) %in% c("text", "offense_type")), with=FALSE]
+test <- test_df[,!(colnames(test_df) %in% c("text", "offense_type")), with=FALSE]
 
 # 2. scale and center training data
 scaler <- preProcess(train, method = c("center", "scale"))
@@ -92,14 +92,23 @@ saveRDS(scaler, "./models/scaler.rds")
 # 3. define train control and tune grid
 train_control <- trainControl(method = "cv",
                               number = 5,
-                              classProbs = TRUE)
+                              classProbs = TRUE,
+                              verboseIter = TRUE)
 
-tune_grid <- expand.grid(nrounds = c(30, 50, 75),
-                         max_depth = c(4, 5, 7),
-                         eta = c(0.08, 0.1, 0.12, 0.2),
-                         gamma = c(0, 0.01, 0.05),
-                         colsample_bytree = c(0.5, 0.75, 1),
-                         min_child_weight = c(0, 0.3, 1),
+tune_grid <- expand.grid(nrounds = c(20, 30, 50),
+                         max_depth = c(3, 4, 6),
+                         eta = c(0.05, 0.08, 0.1),
+                         gamma = c(0.01, 0.05),
+                         colsample_bytree = c(0.7, 0.75, 0.8),
+                         min_child_weight = c(0.5, 1, 1.5),
+                         subsample = c(0.7, 0.8, 0.9))
+
+tune_grid <- expand.grid(nrounds = c(25, 30, 35),
+                         max_depth = c(2, 3),
+                         eta = c(0.09, 0.1, 0.11),
+                         gamma = c(0.04, 0.05, 0.06),
+                         colsample_bytree = c(0.7, 0.75, 0.8),
+                         min_child_weight = c(0.5, 1, 1.5),
                          subsample = c(0.7, 0.8, 0.9))
 
 # 4. fit model
@@ -124,5 +133,8 @@ print(paste("precision:", round(prec, digits = 3), " | ",
             "accuracy:", round(conf_matrix$overall["Accuracy"], digits = 3)))
 
 # 7. save model
-saveRDS(fit, paste0("./models/model_accuracy_", round(temp["Accuracy"], digits = 3),".rds"))
 saveRDS(fit, paste0("./models/model.rds"))
+
+# 8. further analysis
+print(conf_matrix)
+print(varImp(fit))
